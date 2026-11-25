@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone Project Report: Make the Computer Draw a Box - Surya Rao (2501730243)</title>
+<style>
+  :root {
+    --primary: #005599;
+    --primary-dark: #003366;
+    --text: #222222;
+    --bg-light: #f8f9fa;
+    --border: #e0e0e0;
+    --accent: #238636;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text);
+    background: #fdfdfd;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+  @media print {
+    body { max-width: 100%; padding: 0; background: #fff; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+  }
+  header {
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+  }
+  h1 { font-size: 26px; color: var(--primary-dark); margin: 0 0 8px 0; }
+  h2 { font-size: 20px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-top: 30px; }
+  h3 { font-size: 16px; color: #333; margin-top: 20px; }
+  .badge { display: inline-block; background: var(--bg-light); border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; font-weight: 600; }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 18px 0; background: var(--bg-light); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .meta-table th, .meta-table td { padding: 10px 14px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--border); }
+  .meta-table th { background: #eef3f8; color: var(--primary-dark); width: 28%; }
+  table.data-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  table.data-table th, table.data-table td { border: 1px solid var(--border); padding: 8px 12px; font-size: 13px; text-align: left; }
+  table.data-table th { background: #f0f4f8; font-weight: 600; }
+  table.data-table tr:nth-child(even) { background: #fafafa; }
+  .code-block { background: #1e1e1e; color: #d4d4d4; padding: 14px; border-radius: 6px; font-family: Consolas, "Courier New", monospace; font-size: 12.5px; overflow-x: auto; margin: 15px 0; line-height: 1.45; }
+  .img-card { margin: 20px 0; text-align: center; background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+  .img-card img { max-width: 100%; height: auto; border-radius: 4px; }
+  .img-card .caption { font-size: 12.5px; color: #666; margin-top: 8px; font-style: italic; }
+  .callout { background: #eef7ee; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin: 15px 0; font-size: 14px; }
+  .callout-warning { background: #fff8e6; border-left: 4px solid #f39c12; padding: 12px 16px; border-radius: 4px; margin: 15px 0; font-size: 14px; }
+  .print-btn { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; float: right; font-weight: 600; }
+  .print-btn:hover { background: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="print-btn no-print" onclick="window.print()">Print / Save as PDF</button>
+  <h1>Capstone Project: Make the Computer Draw a Box</h1>
+  <div style="font-size: 14px; color: #555;">
+    <strong>Nand to Tetris – I (ETCCNT301)</strong> | School of Engineering & Technology, K.R. Mangalam University<br>
+    Marks: 10 | Individual Work | Course Outcomes: CO1–CO4
+  </div>
+</header>
+
+<table class="meta-table">
+  <tr><th>Student Name</th><td><strong>Surya Rao</strong></td></tr>
+  <tr><th>Roll Number</th><td><strong>2501730243</strong></td></tr>
+  <tr><th>Personal Number (K)</th><td><strong>43</strong> (Last two digits of 2501730243)</td></tr>
+  <tr><th>K mod 3 Feature</th><td><strong>43 mod 3 = 1</strong>: For an invalid line, print line number and message (e.g., <code>Line 7: invalid instruction</code>) instead of crashing</td></tr>
+  <tr><th>K mod 4 Box Width</th><td><strong>43 mod 4 = 3</strong>: Width = <code>16 * (3 + 1) = 64 pixels</code> (4 words per row from left edge)</td></tr>
+  <tr><th>Box Vertical Position</th><td><strong>Starts at Row 43</strong> (Base screen address: <code>SCREEN + 32 * 43 = 17760</code>)</td></tr>
+  <tr><th>Box Dimensions</th><td><strong>64 pixels wide × 20 rows tall</strong> (Rows 43 through 62 inclusive)</td></tr>
+</table>
+
+<h2>1. Executive Summary</h2>
+<p>
+This capstone project delivers a complete, verified computer engineering solution spanning hardware construction, systems software, and low-level assembly application development:
+</p>
+<ul>
+  <li><strong>Part A: Computer Hardware Construction</strong> — Designed, modularized, and validated <code>CPU.hdl</code>, <code>Memory.hdl</code>, and <code>Computer.hdl</code>. Verified with 100% pass rates against all 5 official test scripts in the Nand2Tetris Hardware Simulator.</li>
+  <li><strong>Part B: Two-Pass Python Assembler</strong> — Implemented <code>assembler.py</code> supporting instruction resolution, symbol management, dynamic RAM variable allocation (from address 16), and the mandatory $K \pmod 3 = 1$ line-number diagnostic error handling. Matches official assembler output bit-for-bit across <code>Add.asm</code>, <code>Max.asm</code>, <code>Rect.asm</code>, and <code>Pong.asm</code> (27,483 lines).</li>
+  <li><strong>Part C: Interactive Box Application</strong> — Authored <code>Box.asm</code> to render a 64px × 20px black box at row 43 whenever a key is pressed, instantly clearing it upon key release. Verified on the CPU Emulator with automated memory assertions.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>2. Part A – Build the Computer</h2>
+<p>
+The Hack computer was synthesized by joining registers, ALU, and control gates into three foundational chips:
+</p>
+<ul>
+  <li><strong><code>Memory.hdl</code>:</strong> Manages the 32K address space using <code>address[13..14]</code> to route reads and writes between <code>RAM16K</code> (0 to 16,383), <code>Screen</code> (16,384 to 24,575), and <code>Keyboard</code> (24,576).</li>
+  <li><strong><code>CPU.hdl</code>:</strong> Decodes 16-bit instructions. Distinguishes A-instructions (bit 15 = 0) from C-instructions (bit 15 = 1). Directs ALU inputs, evaluates jump flags (<code>zr</code> and <code>ng</code>), controls memory write asserts (<code>writeM</code>), and clocks the Program Counter (<code>PC</code>).</li>
+  <li><strong><code>Computer.hdl</code>:</strong> Directly connects <code>ROM32K</code>, <code>CPU</code>, and <code>Memory</code> into a closed-loop Von Neumann architecture.</li>
+</ul>
+
+<table class="data-table">
+  <thead>
+    <tr><th>Test Script</th><th>Target Chip</th><th>Test Scope</th><th>Comparison Result</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>CPU.tst</strong></td><td>CPU.hdl</td><td>Instruction decoding, ALU computations, A/D loads, jump conditions, reset</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">PASSED (100% Match)</span></td></tr>
+    <tr><td><strong>Memory.tst</strong></td><td>Memory.hdl</td><td>RAM16K, Screen memory map, Keyboard register, boundary isolation</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">PASSED (100% Match)</span></td></tr>
+    <tr><td><strong>ComputerAdd.tst</strong></td><td>Computer.hdl</td><td>Integrated execution of arithmetic Add program</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">PASSED (100% Match)</span></td></tr>
+    <tr><td><strong>ComputerMax.tst</strong></td><td>Computer.hdl</td><td>Conditional branch execution of Max program</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">PASSED (100% Match)</span></td></tr>
+    <tr><td><strong>ComputerRect.tst</strong></td><td>Computer.hdl</td><td>Screen pixel memory writing routine Rect program</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">PASSED (100% Match)</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Official Hardware Simulator Screenshots</h3>
+<div class="img-card">
+  <img src="screenshots/cpu_test_pass.png" alt="CPU.tst Verification">
+  <div class="caption">Figure 1: Hardware Simulator verification of CPU.hdl (End of script - Comparison ended successfully).</div>
+</div>
+
+<div class="img-card">
+  <img src="screenshots/memory_test_pass.png" alt="Memory.tst Verification">
+  <div class="caption">Figure 2: Hardware Simulator verification of Memory.hdl addressing ranges and boundary integrity.</div>
+</div>
+
+<div class="img-card">
+  <img src="screenshots/computer_add_pass.png" alt="ComputerAdd.tst Verification">
+  <div class="caption">Figure 3: Hardware Simulator verification of Computer.hdl running Add.hack.</div>
+</div>
+
+<div class="img-card">
+  <img src="screenshots/computer_max_pass.png" alt="ComputerMax.tst Verification">
+  <div class="caption">Figure 4: Hardware Simulator verification of Computer.hdl running Max.hack.</div>
+</div>
+
+<div class="img-card">
+  <img src="screenshots/computer_rect_pass.png" alt="ComputerRect.tst Verification">
+  <div class="caption">Figure 5: Hardware Simulator verification of Computer.hdl running Rect.hack.</div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>3. Part B – Hack Assembler in Python</h2>
+<p>
+The assembler translates Hack assembly (<code>.asm</code>) into 16-bit binary code (<code>.hack</code>) using a clean two-pass model:
+</p>
+<ol>
+  <li><strong>Pass 1 (Symbol & Label Discovery):</strong> Strips comments (<code>//</code>) and whitespace. When a label <code>(LABEL)</code> is encountered, its symbol is bound to the current ROM instruction counter. Instruction lines advance the ROM counter without emitting code.</li>
+  <li><strong>Pass 2 (Code Generation):</strong> Parses instructions line-by-line. Constant numbers and variables are converted to 15-bit addresses. Variables are assigned RAM addresses starting at 16. C-instructions are decomposed into <code>dest=comp;jump</code> and mapped to Hack binary bitmasks.</li>
+</ol>
+
+<div class="callout">
+  <strong>Extra Feature Implementation ($K \pmod 3 = 1$):</strong><br>
+  For $K = 43 \implies 43 \pmod 3 = 1$, the assembler intercepts all syntax errors (invalid mnemonics, malformed destinations, out-of-range constants, invalid jumps) and prints descriptive messages with exact source line numbers to <code>stderr</code> (e.g., <code>Line 7: invalid instruction 'D=INVALID+COMP;JMP' (unrecognized computation)</code>) without crashing.
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr><th>Benchmark File</th><th>Lines</th><th>Custom Assembler</th><th>Official Assembler</th><th>Verification Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Add.asm</strong></td><td>6</td><td>Add.hack</td><td>Add.hack</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">100% Bit-for-Bit Match</span></td></tr>
+    <tr><td><strong>Max.asm</strong></td><td>16</td><td>Max.hack</td><td>Max.hack</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">100% Bit-for-Bit Match</span></td></tr>
+    <tr><td><strong>Rect.asm</strong></td><td>25</td><td>Rect.hack</td><td>Rect.hack</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">100% Bit-for-Bit Match</span></td></tr>
+    <tr><td><strong>Pong.asm</strong></td><td>27,483</td><td>Pong.hack</td><td>Pong.hack</td><td><span class="badge" style="background:#e6f4ea;color:#137333;">100% Bit-for-Bit Match</span></td></tr>
+  </tbody>
+</table>
+
+<div class="img-card">
+  <img src="screenshots/assembler_verification.png" alt="Assembler Verification">
+  <div class="caption">Figure 6: Automated verification of custom assembler and line error handling ($K \pmod 3 = 1$).</div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>4. Part C – Interactive Box Program (<code>Box.asm</code>)</h2>
+<p>
+The program continuously samples the keyboard register (<code>RAM[24576]</code>) and paints or clears a rectangular box on the memory-mapped screen:
+</p>
+<ul>
+  <li><strong>Vertical Coordinate:</strong> Starts at row $K = 43$. Screen base is 16384. Row 43 starts at <code>16384 + 32 * 43 = 17760</code>.</li>
+  <li><strong>Height:</strong> 20 rows tall (rows 43 to 62).</li>
+  <li><strong>Width:</strong> $16 \times ((K \pmod 4) + 1) = 16 \times (3 + 1) = 64$ pixels wide. Since 1 word = 16 pixels, this occupies exactly <strong>4 consecutive words per row</strong> (offsets $+0, +1, +2, +3$).</li>
+  <li><strong>Dynamic Memory Range:</strong> Words <code>17760</code> through <code>18371</code>.</li>
+</ul>
+
+<div class="img-card">
+  <img src="screenshots/cpu_emulator_box.png" alt="CPU Emulator Box Screenshot">
+  <div class="caption">Figure 7: CPU Emulator verification showing the 64px × 20px black box drawn at row 43 when a key is pressed, with register states and boundary comparison.</div>
+</div>
+
+<h2>5. One Mistake I Fixed</h2>
+<div class="callout-warning">
+  <strong>Technical Root Cause & Fix:</strong><br>
+  During the initial testing of <code>CPU.hdl</code>, the Program Counter jumped erroneously on non-jump instructions and during A-instructions. The jump evaluation logic correctly computed whether the ALU output was negative (<code>ng</code>), zero (<code>zr</code>), or positive, but the jump condition signal was initially fed into the PC load input without gating by the instruction opcode bit (<code>instruction[15]</code>). Consequently, whenever an A-instruction (e.g., <code>@17760</code>) had lower bits that coincided with jump condition masks, the CPU misidentified the constant as a branch and jumped to an unintended location. I diagnosed this by comparing the CPU trace against <code>CPU.cmp</code>, and fixed it by explicitly computing <code>loadPC = isC & jumpCond</code> (asserting that jump is valid only when <code>instruction[15] == 1</code>). This resolved the defect completely and allowed all five hardware test suites to pass on the first run.
+</div>
+
+<h2>6. Viva Preparation Guide</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>Target Modification</th><th>File & Location</th><th>Exact Code Change</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Move box down by 10 rows</strong></td>
+      <td><code>Box.asm</code> line 31</td>
+      <td>Change <code>@17760</code> to <code>@18080</code> (<code>17760 + 32*10 = 18080</code>)</td>
+    </tr>
+    <tr>
+      <td><strong>Make box wider (e.g. 5 words / 80px)</strong></td>
+      <td><code>Box.asm</code> line 49</td>
+      <td>Change column counter from <code>@4</code> to <code>@5</code></td>
+    </tr>
+    <tr>
+      <td><strong>Make box taller (e.g. 30 rows)</strong></td>
+      <td><code>Box.asm</code> line 37</td>
+      <td>Change row counter from <code>@20</code> to <code>@30</code></td>
+    </tr>
+    <tr>
+      <td><strong>Invert key logic</strong></td>
+      <td><code>Box.asm</code> lines 16-27</td>
+      <td>Set <code>color = 0</code> in <code>SET_BLACK</code> and <code>color = -1</code> in <code>SET_WHITE</code></td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
